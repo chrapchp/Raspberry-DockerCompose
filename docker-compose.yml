@@ -2,7 +2,7 @@ version: '3.8'
 services:
   grafana:
     container_name: grafana
-    image: grafana/grafana:8.3.0
+    image: grafana/grafana:8.3.0 #forced a verson of ARM64, latest did not
     restart: unless-stopped
     user: "0"
     ports:
@@ -10,6 +10,7 @@ services:
     depends_on:
       - influxdb
     volumes:
+      #BIND_VOLUME in .env
       - ${BIND_VOLUME_ROOT}/volumes/grafana/data:/var/lib/grafana
       - ${BIND_VOLUME_ROOT}/volumes/grafana/log:/var/log/grafana
     networks:
@@ -22,6 +23,7 @@ services:
     ports:
       - 8086:8086
     environment:
+      #  include in YML or move to .env file
       # - DOCKER_INFLUXDB_INIT_MODE=setup
       # - DOCKER_INFLUXDB_INIT_USERNAME=theUser
       # - DOCKER_INFLUXDB_INIT_PASSWORD=changeOnInstall
@@ -30,6 +32,7 @@ services:
       # - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=makeMeComplicated
       - TZ=${TIMEZONE}
     env_file:
+      #dev-influxdb.env for environment variables
       - ./dev-influxdb.env
     volumes:
       - ${BIND_VOLUME_ROOT}/volumes/influxdb/data:/var/lib/influxdb2
@@ -68,10 +71,6 @@ services:
       - ${BIND_VOLUME_ROOT}/volumes/nodered/data:/data
       - ${BIND_VOLUME_ROOT}/volumes/nodered/ssh:/root/.ssh
       - /var/run/docker.sock:/var/run/docker.sock
-      # devices:
-      # - "/dev/ttyAMA0:/dev/ttyAMA0"
-      # - "/dev/vcio:/dev/vcio"
-      # - "/dev/gpiomem:/dev/gpiomem"
     networks:
       - iotnet
   portainer-ce:
