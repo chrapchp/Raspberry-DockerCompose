@@ -1,0 +1,111 @@
+version: '3.8'
+services:
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:8.3.0
+    restart: unless-stopped
+    user: "0"
+    ports:
+      - 3000:3000
+    depends_on:
+      - influxdb
+    volumes:
+      - ${BIND_VOLUME_ROOT}/volumes/grafana/data:/var/lib/grafana
+      - ${BIND_VOLUME_ROOT}/volumes/grafana/log:/var/log/grafana
+    networks:
+      - iotnet
+
+  influxdb:
+    container_name: influxdb
+    image: influxdb
+    restart: unless-stopped
+    ports:
+      - 8086:8086
+    environment:
+      # - DOCKER_INFLUXDB_INIT_MODE=setup
+      # - DOCKER_INFLUXDB_INIT_USERNAME=theUser
+      # - DOCKER_INFLUXDB_INIT_PASSWORD=changeOnInstall
+      # - DOCKER_INFLUXDB_INIT_ORG=theOrg
+      # - DOCKER_INFLUXDB_INIT_BUCKET=theBucket
+      # - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=makeMeComplicated
+      - TZ=${TIMEZONE}
+    env_file:
+      - ./dev-influxdb.env
+    volumes:
+      - ${BIND_VOLUME_ROOT}/volumes/influxdb/data:/var/lib/influxdb2
+      - ${BIND_VOLUME_ROOT}/volumes/influxdb/config:/etc/influxdb2
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - iotnet
+
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto
+    restart: unless-stopped
+    environment:
+      - TZ=${TIMEZONE}
+    ports:
+      - 1883:1883
+    volumes:
+      - ${BIND_VOLUME_ROOT}/volumes/mosquitto/config:/mosquitto/config
+      - ${BIND_VOLUME_ROOT}/volumes/mosquitto/data:/mosquitto/data
+      - ${BIND_VOLUME_ROOT}/volumes/mosquitto/log:/mosquitto/log
+      - ${BIND_VOLUME_ROOT}/volumes/mosquitto/pwfile:/mosquitto/pwfile
+    networks:
+      - iotnet
+  node-red:
+    container_name: node-red
+    image: nodered/node-red
+    restart: unless-stopped
+    user: "0"
+    environment:
+      - TZ=${TIMEZONE}
+    ports:
+      - 1880:1880
+    depends_on:
+      - mosquitto
+    volumes:
+      - ${BIND_VOLUME_ROOT}/volumes/nodered/data:/data
+      - ${BIND_VOLUME_ROOT}/volumes/nodered/ssh:/root/.ssh
+      - /var/run/docker.sock:/var/run/docker.sock
+      # devices:
+      # - "/dev/ttyAMA0:/dev/ttyAMA0"
+      # - "/dev/vcio:/dev/vcio"
+      # - "/dev/gpiomem:/dev/gpiomem"
+    networks:
+      - iotnet
+  portainer-ce:
+    container_name: portainer-ce
+    image: portainer/portainer-ce
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${BIND_VOLUME_ROOT}/volumes/portainer-ce/data:/data
+  telegraf:
+    container_name: telegraf
+    image: telegraf
+    restart: unless-stopped
+    environment:
+      - TZ=${TIMEZONE}
+      - INFLUX_TOKEN=${INFLUX_TELEGRAF_TOKEN}
+    # env_file:
+    #   - ./dev-telegraf.env      
+    ports:
+      - 8092:8092 #/udp
+      - 8094:8094 #/tcp
+      - 8125:8125 #/StatsD
+    volumes:
+      - ${BIND_VOLUME_ROOT}/volumes/telegraf/:/etc/telegraf
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - influxdb
+      - mosquitto
+    networks:
+      - iotnet
+
+networks:
+  iotnet:
+
+    null
