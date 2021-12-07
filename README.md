@@ -29,3 +29,5 @@ docker-compose.yml -|docker compose file
 7. type *docker-compose up* from a terminal to display log entries on console
 8. default *telegraf.conf* file uses infuxdb access token, org, bucket defined in dev-influxdb.env. This was done just to get up and runnning. One should create the proper access tokens and bucket via the influxdb dashboard. 
 
+
+

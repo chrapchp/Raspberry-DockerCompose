@@ -89,6 +89,8 @@ services:
     environment:
       - TZ=${TIMEZONE}
       - INFLUX_TOKEN=${INFLUX_TELEGRAF_TOKEN}
+      - INFLUX_IP=${INFLUX_IP}
+      - INFLUX_PORT=${INFLUX_PORT}
     # env_file:
     #   - ./dev-telegraf.env      
     ports:
