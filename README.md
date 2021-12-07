@@ -15,19 +15,3 @@ docker-compose.yml -|docker compose file
 
 
 
-1. create *myDocker* folder under home directory or where you want and update **BIND_VOLUME_ROOT** in *.env file*
-2. change directory to myDocker
-3. *git clone https://github.com/chrapchp/Raspberry-DockerCompose.git*
-4. change directory to volume/nodered/data
-5. settings.js set for ssl required for node-RED generate pem files
-5a. sudo openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem _*ensure Common Name (e.g. server FQDN or YOUR name) is set to your devices IP. e.g. 192.168.1.23_
-5b. ensure key and cert pem files reside in /volume/nodered/data
-5c. default admin user: admin/changeOnInstall 
-5d. if ssl not required, comment out *https: {...},* code in settings.js
-5e. if user/password not required, comment *adminAuth:{...},* code in settings.js
-6. change directory to myDocker
-7. type *docker-compose up* from a terminal to display log entries on console
-8. default *telegraf.conf* file uses infuxdb access token, org, bucket defined in dev-influxdb.env. This was done just to get up and runnning. One should create the proper access tokens and bucket via the influxdb dashboard. 
-
-
-
