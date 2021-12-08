@@ -102,7 +102,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - influxdb
-      - mosquitto
     networks:
       - iotnet
 
